@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView} from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View ,ScrollView, useWindowDimensions} from 'react-native'
+import React,{useState} from 'react'
 
 import { RootTabScreenProps } from '../types';
 import Pin from './Pin';
@@ -10,23 +10,21 @@ interface IMasonryList {
     title:string;
   }
 }
-const masonryList = ({ pins  }:IMasonryList) => {
+const masonryList = ({ pins }:IMasonryList) => {
+const width = useWindowDimensions().width;
+const numcols =Math.ceil(width / 350);
+console.log(width);
   return (
     <ScrollView >
     <View  style={styles.container}>
+{Array.from(Array(numcols)).map((_,colindex )=>(
     <View style={styles.column}>
-      
-{pins
-.filter((_, index) =>index % 2 ===0)
-.map(pin => <Pin pin ={pin}  key={pin.id}/>)}
-    </View>
-    <View style={styles.column}>
-   
     {pins
-.filter((_, index) =>index % 2 ===1)
-.map(pin => <Pin pin ={pin}  key={pin.id} />)}
-    </View>
-    </View>
+    .filter((_, index) =>index % numcols ===colindex)
+    .map(pin => <Pin pin ={pin}  key={pin.id}/>)}
+        </View>
+))}
+</View>
   </ScrollView>
   )
 }
