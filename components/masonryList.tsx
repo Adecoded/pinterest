@@ -18,7 +18,7 @@ console.log(width);
     <ScrollView >
     <View  style={styles.container}>
 {Array.from(Array(numcols)).map((_,colindex )=>(
-    <View style={styles.column}>
+    <View style={styles.column} key={`column_${colindex}`}>
     {pins
     .filter((_, index) =>index % numcols ===colindex)
     .map(pin => <Pin pin ={pin}  key={pin.id}/>)}
