@@ -1,17 +1,46 @@
-import { StyleSheet, Text, View,Image,SafeAreaView, Pressable,ScrollView  } from 'react-native'
+import { StyleSheet, Text, View,Image,SafeAreaView, Pressable,ScrollView, Alert  } from 'react-native'
 import React, {useEffect,useState} from 'react'
-import pins from '../assets/data/pins'
+
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation ,useRoute} from '@react-navigation/native';
-
+import { useNhostClient } from '@nhost/react';
+const GET_PINS_QUERY=`query MyQuery ($id:uuid!) {
+  pins_by_pk(id:$id) {
+    created_at
+    id
+    image
+    title
+    user {
+      avatarUrl
+      displayName
+      id
+    }
+  }
+}
+`
 const PinScreen = () => {
   const [ratio, setRatio] = useState(1);
+  const [pin,setPin] =useState<any>([]);
+  const nhost =useNhostClient();
   const navigation =useNavigation();
   const route =useRoute();
 const pinId = route.params?.id;
-const pin =pins.find(p => p.id ===pinId);
+
+
+const fetchpin =async (pinId) =>{
+  const response = await nhost.graphql.request(
+    GET_PINS_QUERY, {id:pinId}
+  );
+  if (response.error){
+    Alert.alert("Error Fetching data")
+  }else{
+    setPin(response.data.pins_by_pk);
+  }
+};
+useEffect(() => { fetchpin(pinId); }, [pinId ]);
+
   const insets =useSafeAreaInsets();
   useEffect(() => {
     if (pin?.image) {
