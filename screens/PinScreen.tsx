@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation ,useRoute} from '@react-navigation/native';
 import { useNhostClient } from '@nhost/react';
+import RemoteImage from '../components/RemoteImage';
 const GET_PINS_QUERY=`query MyQuery ($id:uuid!) {
   pins_by_pk(id:$id) {
     created_at
@@ -21,7 +22,6 @@ const GET_PINS_QUERY=`query MyQuery ($id:uuid!) {
 }
 `
 const PinScreen = () => {
-  const [ratio, setRatio] = useState(1);
   const [pin,setPin] =useState<any>([]);
   const nhost =useNhostClient();
   const navigation =useNavigation();
@@ -34,30 +34,23 @@ const fetchpin =async (pinId) =>{
     GET_PINS_QUERY, {id:pinId}
   );
   if (response.error){
-    Alert.alert("Error Fetching data")
+    Alert.alert("Error Fetching data", response.error.message);
   }else{
     setPin(response.data.pins_by_pk);
   }
 };
 useEffect(() => { fetchpin(pinId); }, [pinId ]);
-
   const insets =useSafeAreaInsets();
-  useEffect(() => {
-    if (pin?.image) {
-      Image.getSize(pin.image,(width,height) =>setRatio(width/height ));
-    }
 
-  }, [pin]);
   const goBack =() => {
     navigation.goBack();
   };
-
   return (
     <SafeAreaView>
     <ScrollView>
     <StatusBar style='light'/>
    <View style={styles.root}>
-    <Image source={{uri:pin.image}} style={[styles.image, {aspectRatio:ratio}]}/>
+<RemoteImage fileId={pin.image}/>
     <Text style={styles.title}>{pin.title}</Text>
    </View>
    <Pressable onPress={goBack} style={[styles.btn,{top:insets.top + 20}]}>
